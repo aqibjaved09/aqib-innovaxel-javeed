@@ -128,6 +128,8 @@ def update_url(short_code):
         'updatedAt': url_entry.updated_at
     }), 200
 
+# 7th Addition
+
 @app.route('/shorten/<short_code>', methods=['DELETE'])
 def delete_url(short_code):
     url_entry = ShortURL.query.filter_by(short_code=short_code).first()
@@ -139,6 +141,24 @@ def delete_url(short_code):
     db.session.commit()
     
     return '', 204
+
+# 8th Addition
+
+@app.route('/shorten/<short_code>/stats', methods=['GET'])
+def get_stats(short_code):
+    url_entry = ShortURL.query.filter_by(short_code=short_code).first()
+    
+    if not url_entry:
+        return jsonify({'error': 'URL not found'}), 404
+    
+    return jsonify({
+        'id': url_entry.id,
+        'url': url_entry.url,
+        'shortCode': url_entry.short_code,
+        'createdAt': url_entry.created_at,
+        'updatedAt': url_entry.updated_at,
+        'accessCount': url_entry.access_count
+    }), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
