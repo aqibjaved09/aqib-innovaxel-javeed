@@ -4,6 +4,7 @@ import secrets
 import validators
 from flask import jsonify, request
 from flask import redirect
+from datetime import datetime
 
 # 2nd Addition
 
@@ -22,17 +23,12 @@ class ShortURL(db.Model):
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
     access_count = db.Column(db.Integer, default=0)
 
-# Update the __main__ block:
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
-
-app = Flask(__name__)
 
 @app.route('/')
 def home():
     return "URL Shortener Service"
+
+
 
 #rd Addition
 @app.route('/shorten', methods=['POST'])
@@ -60,8 +56,8 @@ def create_short_url():
         'id': new_url.id,
         'url': new_url.url,
         'shortCode': new_url.short_code,
-        'createdAt': new_url.created_at,
-        'updatedAt': new_url.updated_at
+        'createdAt': new_url.created_at.isoformat(),  # Fixed datetime serialization
+        'updatedAt': new_url.updated_at.isoformat(),
     }), 201
 
 
@@ -80,8 +76,8 @@ def get_original_url(short_code):
         'id': url_entry.id,
         'url': url_entry.url,
         'shortCode': url_entry.short_code,
-        'createdAt': url_entry.created_at,
-        'updatedAt': url_entry.updated_at
+        'createdAt': url_entry.created_at.isoformat(), # Fixing
+        'updatedAt': url_entry.updated_at.isoformat(),
     }), 200
 
 # 5th Addtion 
@@ -124,8 +120,8 @@ def update_url(short_code):
         'id': url_entry.id,
         'url': url_entry.url,
         'shortCode': url_entry.short_code,
-        'createdAt': url_entry.created_at,
-        'updatedAt': url_entry.updated_at
+        'createdAt': url_entry.created_at.isoformat(),
+        'updatedAt': url_entry.updated_at.isoformat(),
     }), 200
 
 # 7th Addition
@@ -155,10 +151,33 @@ def get_stats(short_code):
         'id': url_entry.id,
         'url': url_entry.url,
         'shortCode': url_entry.short_code,
-        'createdAt': url_entry.created_at,
-        'updatedAt': url_entry.updated_at,
+        'createdAt': url_entry.created_at.isoformat(),
+        'updatedAt': url_entry.updated_at.isoformat(), 
         'accessCount': url_entry.access_count
     }), 200
 
+# 9th Addtion 
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'error': 'Not found'}), 404
+
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({'error': 'Bad request'}), 400
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({'error': 'Internal server error'}), 500
+
+
+
 if __name__ == '__main__':
+
+    with app.app_context():
+        db.create_all() 
+
     app.run(debug=True)
+
+
+
