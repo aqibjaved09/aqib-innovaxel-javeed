@@ -3,6 +3,7 @@ from flask import Flask
 import secrets
 import validators
 from flask import jsonify, request
+from flask import redirect
 
 # 2nd Addition
 
@@ -82,6 +83,20 @@ def get_original_url(short_code):
         'createdAt': url_entry.created_at,
         'updatedAt': url_entry.updated_at
     }), 200
+
+# 5th Addtion 
+
+@app.route('/<short_code>')
+def redirect_to_url(short_code):
+    url_entry = ShortURL.query.filter_by(short_code=short_code).first()
+    
+    if not url_entry:
+        return jsonify({'error': 'URL not found'}), 404
+    
+    url_entry.access_count += 1
+    db.session.commit()
+    
+    return redirect(url_entry.url, code=301)
 
 if __name__ == '__main__':
     app.run(debug=True)
