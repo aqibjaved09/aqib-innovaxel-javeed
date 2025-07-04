@@ -63,5 +63,25 @@ def create_short_url():
         'updatedAt': new_url.updated_at
     }), 201
 
+
+# 4th Addition 
+@app.route('/shorten/<short_code>', methods=['GET'])
+def get_original_url(short_code):
+    url_entry = ShortURL.query.filter_by(short_code=short_code).first()
+    
+    if not url_entry:
+        return jsonify({'error': 'URL not found'}), 404
+    
+    url_entry.access_count += 1
+    db.session.commit()
+    
+    return jsonify({
+        'id': url_entry.id,
+        'url': url_entry.url,
+        'shortCode': url_entry.short_code,
+        'createdAt': url_entry.created_at,
+        'updatedAt': url_entry.updated_at
+    }), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
