@@ -1,5 +1,8 @@
 
 from flask import Flask
+import secrets
+import validators
+from flask import jsonify, request
 
 # 2nd Addition
 
@@ -29,6 +32,36 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     return "URL Shortener Service"
+
+#rd Addition
+@app.route('/shorten', methods=['POST'])
+def create_short_url():
+    data = request.get_json()
+    
+    if not data or 'url' not in data:
+        return jsonify({'error': 'URL is required'}), 400
+    
+    url = data['url']
+    
+    if not validators.url(url):
+        return jsonify({'error': 'Invalid URL'}), 400
+    
+    short_code = secrets.token_urlsafe(6)[:6]
+    
+    while ShortURL.query.filter_by(short_code=short_code).first():
+        short_code = secrets.token_urlsafe(6)[:6]
+    
+    new_url = ShortURL(url=url, short_code=short_code)
+    db.session.add(new_url)
+    db.session.commit()
+    
+    return jsonify({
+        'id': new_url.id,
+        'url': new_url.url,
+        'shortCode': new_url.short_code,
+        'createdAt': new_url.created_at,
+        'updatedAt': new_url.updated_at
+    }), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
