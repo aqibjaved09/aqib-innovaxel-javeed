@@ -98,5 +98,35 @@ def redirect_to_url(short_code):
     
     return redirect(url_entry.url, code=301)
 
+# 6th additon
+
+@app.route('/shorten/<short_code>', methods=['PUT'])
+def update_url(short_code):
+    url_entry = ShortURL.query.filter_by(short_code=short_code).first()
+    
+    if not url_entry:
+        return jsonify({'error': 'URL not found'}), 404
+    
+    data = request.get_json()
+    
+    if not data or 'url' not in data:
+        return jsonify({'error': 'URL is required'}), 400
+    
+    new_url = data['url']
+    
+    if not validators.url(new_url):
+        return jsonify({'error': 'Invalid URL'}), 400
+    
+    url_entry.url = new_url
+    db.session.commit()
+    
+    return jsonify({
+        'id': url_entry.id,
+        'url': url_entry.url,
+        'shortCode': url_entry.short_code,
+        'createdAt': url_entry.created_at,
+        'updatedAt': url_entry.updated_at
+    }), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
