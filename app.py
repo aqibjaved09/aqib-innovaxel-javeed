@@ -128,6 +128,17 @@ def update_url(short_code):
         'updatedAt': url_entry.updated_at
     }), 200
 
+@app.route('/shorten/<short_code>', methods=['DELETE'])
+def delete_url(short_code):
+    url_entry = ShortURL.query.filter_by(short_code=short_code).first()
+    
+    if not url_entry:
+        return jsonify({'error': 'URL not found'}), 404
+    
+    db.session.delete(url_entry)
+    db.session.commit()
+    
+    return '', 204
 
 if __name__ == '__main__':
     app.run(debug=True)
