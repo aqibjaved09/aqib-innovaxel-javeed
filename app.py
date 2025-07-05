@@ -158,7 +158,7 @@ def get_stats(short_code):
 
 # 9th Addtion 
 
-@app.errorhandler(404)
+"""@app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Not found'}), 404
 
@@ -168,7 +168,7 @@ def bad_request(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({'error': 'Internal server error'}), 500
+    return jsonify({'error': 'Internal server error'}), 500"""
 
 
 
